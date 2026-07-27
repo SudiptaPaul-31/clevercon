@@ -1,3 +1,4 @@
+ use crate::{AgentVault, AgentVaultClient, VaultError};
 use crate::{AgentVault, AgentVaultClient, VaultError};
 use soroban_sdk::testutils::storage::Persistent as _;
 use soroban_sdk::testutils::{Address as _, Events, Ledger as _};
@@ -2704,11 +2705,11 @@ fn test_update_admin_legitimate_rotation_still_works() {
     let another_admin = Address::generate(&t.env);
 
     // First rotation succeeds
-    assert!(t.client.try_update_admin(&t.admin, &new_admin).is_ok());
+    t.client.update_admin(&t.admin, &new_admin);
     assert_eq!(t.client.get_admin(), new_admin);
 
     // Second legitimate rotation also succeeds
-    assert!(t.client.try_update_admin(&new_admin, &another_admin).is_ok());
+    t.client.update_admin(&new_admin, &another_admin);
     assert_eq!(t.client.get_admin(), another_admin);
 }
 
@@ -2730,10 +2731,9 @@ fn test_update_orchestrator_legitimate_rotation_still_works() {
         .register_orchestrator(&user, &old_orchestrator, &old_name);
 
     // First legitimate rotation succeeds
-    assert!(test_env
+    test_env
         .client
-        .try_update_orchestrator(&user, &new_orchestrator, &new_name)
-        .is_ok());
+        .update_orchestrator(&user, &new_orchestrator, &new_name);
     let config = test_env.client.get_user_config(&user).unwrap();
     assert_eq!(config.orchestrator, Some(new_orchestrator.clone()));
     assert_eq!(config.orchestrator_name, new_name);
@@ -2741,10 +2741,9 @@ fn test_update_orchestrator_legitimate_rotation_still_works() {
     // Second legitimate rotation also succeeds (update to a different orchestrator)
     let another_orchestrator = Address::generate(&test_env.env);
     let another_name = soroban_sdk::String::from_str(&test_env.env, "AnotherOrchestrator");
-    assert!(test_env
+    test_env
         .client
-        .try_update_orchestrator(&user, &another_orchestrator, &another_name)
-        .is_ok());
+        .update_orchestrator(&user, &another_orchestrator, &another_name);
     let config2 = test_env.client.get_user_config(&user).unwrap();
     assert_eq!(config2.orchestrator, Some(another_orchestrator.clone()));
     assert_eq!(config2.orchestrator_name, another_name);
@@ -2761,7 +2760,7 @@ fn test_update_admin_legitimate_rotation_emits_event() {
     let _ = t.env.events().all();
 
     // Perform legitimate rotation
-    assert!(t.client.try_update_admin(&t.admin, &new_admin).is_ok());
+    t.client.update_admin(&t.admin, &new_admin);
 
     // Verify exactly one event was emitted
     let events = t.env.events().all();
@@ -2789,10 +2788,9 @@ fn test_update_orchestrator_legitimate_rotation_emits_event() {
     let new_name = soroban_sdk::String::from_str(&test_env.env, "NewOrchestrator");
 
     // Perform legitimate rotation
-    assert!(test_env
+    test_env
         .client
-        .try_update_orchestrator(&user, &new_orchestrator, &new_name)
-        .is_ok());
+        .update_orchestrator(&user, &new_orchestrator, &new_name);
 
     // Verify exactly one event was emitted
     let events = test_env.env.events().all();
