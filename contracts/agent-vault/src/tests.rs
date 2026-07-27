@@ -1,4 +1,3 @@
-use crate::{AgentVault, AgentVaultClient, DataKey, VaultError};
 use crate::{AgentVault, AgentVaultClient, VaultError};
 use soroban_sdk::testutils::storage::Persistent as _;
 use soroban_sdk::testutils::{Address as _, Events, Ledger as _};
