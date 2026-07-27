@@ -1384,7 +1384,7 @@ impl AgentVault {
         env.storage().instance().set(&DataKey::Admin, &new_admin);
         Self::extend_instance_ttl(&env);
         UpdateAdminEvent {
-            old_admin: admin,
+            old_admin: stored_admin,
             new_admin,
         }
         .publish(&env);
